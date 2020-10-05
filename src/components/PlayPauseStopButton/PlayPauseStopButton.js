@@ -3,20 +3,26 @@ import {TouchableOpacity, View, Image} from 'react-native';
 import styles from './styles'
 import colors from '../../constants/colors';
 
-const PlayPauseStopButton = ({mode, playing, play, pause}) => {
+const PlayPauseStopButton = ({mode, timerPlaying, play, pause}) => {
 
-    const pauseIcon = require('../../assets/images/pause.png');
-    const playIcon = require('../../assets/images/play.png');
-    const stopIcon = require('../../assets/images/stop.png');
+    const pauseIcon = '../../assets/images/pause.png';
+    const playIcon = '../../assets/images/play.png';
+    const stopIcon = '../../assets/images/stop.png';
     const [icon, setIcon] = useState('');
 
     const handlePress = () => {
-        playing ? pause() : play();
+        timerPlaying ?
+            pause()
+        :
+            play();
     }
 
     useEffect(() => {
-        playing ? setIcon(pauseIcon) : setIcon(playIcon)
-    },[playing])
+        timerPlaying ?
+            setIcon(require(pauseIcon))
+        :
+            setIcon(require(playIcon));
+    },[timerPlaying])
 
     return (
         <TouchableOpacity onPress={handlePress}>

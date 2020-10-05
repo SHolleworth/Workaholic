@@ -3,7 +3,7 @@ import {View, Text, TouchableWithoutFeedback} from 'react-native';
 import PlayPauseStopButton from '../PlayPauseStopButton';
 import styles from './styles'
 
-const ModeSelectTouchable = ({id, setModeWithAnim, totalTime, activeTime}) => {
+const ModeSelectTouchable = ({id, changeMode, totalTime, activeTime}) => {
 
     const [totalHours, setTotalHours] = useState("0");
     const [totalMins, setTotalMins] = useState("0");
@@ -41,7 +41,7 @@ const ModeSelectTouchable = ({id, setModeWithAnim, totalTime, activeTime}) => {
     }
 
     const handlePress = () => {
-        setModeWithAnim(id,!id);
+        changeMode();
     }
 
     return (
