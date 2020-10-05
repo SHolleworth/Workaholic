@@ -8,7 +8,7 @@ const PlayPauseStopButton = ({mode, timerPlaying, play, pause}) => {
     const pauseIcon = '../../assets/images/pause.png';
     const playIcon = '../../assets/images/play.png';
     const stopIcon = '../../assets/images/stop.png';
-    const [icon, setIcon] = useState('');
+    const [icon, setIcon] = useState(require(playIcon));
 
     const handlePress = () => {
         timerPlaying ?

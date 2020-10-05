@@ -45,6 +45,7 @@ const CircleTimer = (props) => {
         origin={(fullRad, fullRad)}
         rotation={"-90"}
         strokeOpacity={props.opacity}
+        strokeLinecap={'round'}
         {...{strokeDashoffset}} />
     </Svg>
   );

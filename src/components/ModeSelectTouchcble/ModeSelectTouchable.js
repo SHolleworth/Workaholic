@@ -41,7 +41,7 @@ const ModeSelectTouchable = ({id, changeMode, totalTime, activeTime}) => {
     }
 
     const handlePress = () => {
-        changeMode();
+        changeMode(id);
     }
 
     return (

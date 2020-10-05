@@ -9,6 +9,7 @@ const {
     cond,
     set,
     call,
+    and,
     greaterThan,
 } = Animated;
 
@@ -27,17 +28,20 @@ const run = (clock, finish) => {
     }
 
     return(block([
+        cond(and(clockRunning(clock), state.finished), 
+        [
+            set(state.finished, 0),
+            set(state.position, 0),
+        ]),
         cond(clockRunning(clock), timing(clock, state, config)),
         cond(state.finished,
             [
                 set(state.time, 0),
                 set(state.frameTime, 0),
-                set(state.finished, 0),
-                set(state.position, 0),
                 call([], finish),
                 stopClock(clock),
             ]),
-        cond(greaterThan(state.position, 0), state.position, new Value(1))
+        state.position
     ]));
 }
 

@@ -71,6 +71,8 @@ const TimerScreen = () => {
         resetting ? mode ? resetWork() : resetBreak() : null;
     },[resetting])
 
+    useEffect(() => {console.log(mode)}, [mode]);
+
     useCode(() => set(isMode, mode), [mode]);
 
     useCode(() => set(isResetting, resetting), [resetting]);
@@ -123,7 +125,7 @@ const TimerScreen = () => {
 
     const endResetting = () => {
         setResetting(0);
-        mode ? resetWork() : resetBreak;
+        resetTimer();
     }
 
     const endModeAnimation = () => {
@@ -165,15 +167,23 @@ const TimerScreen = () => {
 
     const resetTimer = () => {
         pauseTimer();
-        setActiveAnimation(animations.RESET);
-        setAnimPlaying(1);
+        if(mode ? elapsedWorkTime : elapsedBreakTime && activeAnimation == animations.TIMER){
+            setActiveAnimation(animations.RESET);
+            setAnimPlaying(1);
+        }
     }
    
-    const changeMode = () => {
-        pauseTimer();
-        setMode(!mode);
-        setActiveAnimation(animations.MODE);
-        setAnimPlaying(1);
+    const changeMode = (id) => {
+        if(id != mode && activeAnimation == animations.TIMER){
+            pauseTimer();
+            setMode(id);
+            setActiveAnimation(animations.MODE);
+            setAnimPlaying(1);
+        }
+    }
+
+    const resetTime = () => {
+        mode ? resetWork() : resetBreak();
     }
 
     const resetWork = () => {
