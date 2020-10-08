@@ -34,7 +34,7 @@ const PlayPauseStopButton = ({mode, timerPlaying, timerStopped, play, pause, sto
 
     return (
         <TouchableOpacity onPress={handlePress}>
-            <View style={[styles.button, {height, width: height, borderRadius: height / 2 , backgroundColor: mode ? colors.WORK_HIGHLIGHT : colors.BREAK_HIGHLIGHT}]}>
+            <View style={[styles.button, {height, width: height, borderRadius: height / 2 , backgroundColor: colors.BACKGROUND, borderColor: mode ? colors.WORK_HIGHLIGHT : colors.BREAK_HIGHLIGHT}]}>
                 <Image style={styles.image} source={icon}/>
             </View>
         </TouchableOpacity>

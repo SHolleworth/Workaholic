@@ -3,6 +3,7 @@ import {View, useWindowDimensions} from 'react-native';
 import Animated, { Easing } from 'react-native-reanimated';
 import BackgroundTimer from 'react-native-background-timer';
 import Sound from 'react-native-sound';
+import { Notifications } from 'react-native-notifications';
 import OuterTimer from '../../components/timerComponents/OuterTimer';
 import ModeControls from '../../components/timerComponents/ModeControls';
 import TimerControls from '../../components/timerComponents/TimerControls';
@@ -56,6 +57,7 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
 
     useEffect(() => {
         configureAlarm();
+        configureNotifications();
         return (() => {alarm.current.release()})
     },[])
 
@@ -168,7 +170,20 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
         })
         console.log("Configuring alarm.");
         Sound.setCategory('Playback');
-    } 
+    }
+
+    const configureNotifications = () => {
+        Notifications.events().registerNotificationReceivedForeground((notification, completion) => {
+            completion({alert:false, sound: false, badge: false});
+        });
+        Notifications.events().registerNotificationReceivedBackground((notification, completion) => {
+            completion({alert: true, sound: true, badge: true});
+        });
+        Notifications.events().registerNotificationOpened((notification, completion) => {
+            stopTimer();
+            completion();
+        })
+    }
 
     const handleInterval = () => {
         interval.current = getInterval();
@@ -207,18 +222,29 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
     }
 
     const handleTimerEnd = () => {
-        pauseTimer();
+        pauseTimer();            
+        sendNotification();
         setTimerStopped(1);
         playAlarm();
     }
 
     const handleTimerStopped = () => {
-        console.log("handling timer stopped");
-        console.log(timerStopped);
         if(timerStopped){
             setTimerStopped(0);
             changeMode(!mode);
         }
+    }
+
+    const sendNotification = () => {
+        const time = new Date(Date.now());
+        const title = mode ? "Take a break!" : "Back to work.";
+        const modeString = mode ? "Work time" : "Break time"
+        const body = modeString + ` finished at ${time.getHours()}:${time.getMinutes()}.`;
+
+        Notifications.postLocalNotification({
+            title,
+            body,
+        })
     }
 
     const stopTimer = () => {

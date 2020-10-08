@@ -18,6 +18,8 @@ target 'Workaholic' do
 
   pod 'RNSound', :path => '../node_modules/react-native-sound'
 
+  pod 'react-native-notifications', :path => '../node_modules/react-native-notifications'
+
   target 'WorkaholicTests' do
     inherit! :complete
     # Pods for testing

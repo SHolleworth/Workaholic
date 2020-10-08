@@ -108,7 +108,7 @@ const ScreenContainer = () => {
                 activeScreen={activeScreen}
                 transitionScreen={transitionScreen}
             />
-            <LayoutCircle progress={progress}/>
+            <LayoutCircle mode={mode} progress={progress}/>
         </View>
     );
 };

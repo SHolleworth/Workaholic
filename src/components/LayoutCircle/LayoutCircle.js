@@ -7,7 +7,7 @@ import navDimensions from '../../constants/navDimensions';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-const LayoutCircle = ({progress}) => {
+const LayoutCircle = ({mode, progress}) => {
 
     const radius = (useWindowDimensions().width *.5);
     const diameter = radius * 2;

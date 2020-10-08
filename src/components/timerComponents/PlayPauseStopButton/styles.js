@@ -5,14 +5,15 @@ const styles = StyleSheet.create({
     button: {
         height: 100,
         width: 100,
+        marginBottom: 20,
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 50,
-        marginBottom: 20,
+        borderWidth: 2,
     },
     image: {
-        height: 60,
-        width: 60,
+        height: 50,
+        width: 50,
     }
 });
 

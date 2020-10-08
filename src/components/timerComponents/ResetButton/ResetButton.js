@@ -10,7 +10,7 @@ const ResetButton = ({reset}) => {
         reset();   
     }
 
-    const height = useWindowDimensions().height / 11;
+    const height = useWindowDimensions().height / 12;
 
     return (
         <TouchableOpacity onPress={handlePress}>
