@@ -1,10 +1,10 @@
 import React from 'react';
-import {View} from 'react-native';
+import {Dimensions, View} from 'react-native';
 import ScreenContainer from './src/containers/ScreenContainer';
 
 const App = () => {
   return (
-    <View style={{flex:1, backgroundColor: 'red'}}>
+    <View style={{flex: 1}}>
       <ScreenContainer />
     </View>
   );

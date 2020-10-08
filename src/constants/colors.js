@@ -4,6 +4,7 @@ const Colors = {
     BREAK_HIGHLIGHT: '#4dccbd',
     PRIMARY: '#484053',
     SECONDARY: '#574e65',
+    TERTIARY: '#726783',
 }
 
 export default Colors;

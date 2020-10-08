@@ -22,7 +22,7 @@ const run = (clock, duration, isResetting, finish, endResetting) => {
     };
 
     const config = {
-        duration: new Value(duration),
+        duration: duration,
         toValue: new Value(1),
         easing: Easing.linear,
     };

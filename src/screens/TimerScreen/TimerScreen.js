@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import {View, useWindowDimensions} from 'react-native';
 import Animated, { Easing } from 'react-native-reanimated';
 import BackgroundTimer from 'react-native-background-timer';
-import OuterTimer from '../../components/OuterTimer';
-import ModeControls from '../../components/ModeControls';
-import TimerControls from '../../components/TimerControls';
-import LayoutCircle from '../../components/LayoutCircle/LayoutCircle';
+import Sound from 'react-native-sound';
+import OuterTimer from '../../components/timerComponents/OuterTimer';
+import ModeControls from '../../components/timerComponents/ModeControls';
+import TimerControls from '../../components/timerComponents/TimerControls';
 import animations from '../../constants/animationEnums';
+import nav from '../../constants/navDimensions';
 import timerAnimation from '../../animations/timerAnimation';
 import resetAnimation from '../../animations/resetAnimation';
 import modeAnimation from '../../animations/modeAnimation';
@@ -26,37 +27,61 @@ const {
     interpolate,
 } = Animated;
 
-const TimerScreen = () => {
+const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
 
-    const [mode, setMode] = useState(1);
-    const [totalWorkTime, setTotalWorkTime] = useState(10000);
-    const [totalBreakTime, setTotalBreakTime] = useState(5000);
+    const interval = useRef(null);
+    const alarm = useRef(null);
+
     const [elapsedWorkTime, setElapsedWorkTime] = useState(0);
     const [elapsedBreakTime, setElapsedBreakTime] = useState(0);
-    const [displayedWorkTime, setDisplayedWorkTime] = useState(10000);
-    const [displayedBreakTime, setDisplayedBreakTime] = useState(5000);
-    const [timerTime, setTimerTime] = useState(totalWorkTime);
-
-    const [resetting, setResetting] = useState(0);
+    const [displayedWorkTime, setDisplayedWorkTime] = useState(0);
+    const [displayedBreakTime, setDisplayedBreakTime] = useState(0);
+    const [timerTime, setTimerTime] = useState(0);
     const [activeAnimation, setActiveAnimation] = useState(animations.TIMER);
-    const interval = useRef(null);
-
+    const [resetting, setResetting] = useState(0);
     const [timerPlaying, setTimerPlaying] = useState(0);
     const [animPlaying, setAnimPlaying] = useState(0);
-    const isAnimPlaying = useRef(new Value(0)).current;
+    const [timerStopped, setTimerStopped] = useState(0);
 
+    const isAnimPlaying = useRef(new Value(0)).current;
     const clock = useRef(new Clock()).current;
     const declaredAnimation = useRef(new Value(animations.NONE)).current;
     const isResetting = useRef(new Value(0)).current;
     const isMode = useRef(new Value(mode)).current;
+    const animationDuration = useRef(new Value(0)).current;
     const modeAnimProgress = useRef(new Value(0)).current;
     const workCircleAnimProgress = useRef(new Value(0)).current;
     const breakCircleAnimProgress = useRef(new Value(0)).current;
     const timerAnimProgress = useRef(new Value(0)).current;
-    
-    useEffect(() => {setDisplayedWorkTime(totalWorkTime - elapsedWorkTime)}, [elapsedWorkTime]);
 
-    useEffect(() => {setDisplayedBreakTime(totalBreakTime - elapsedBreakTime)}, [elapsedBreakTime]);
+    useEffect(() => {
+        configureAlarm();
+        return (() => {alarm.current.release()})
+    },[])
+
+    useEffect(() => {
+        setElapsedWorkTime(0);
+        setDisplayedWorkTime(totalWorkTime);
+        setTimerTime(totalWorkTime);
+        setResetting(1);
+    },[totalWorkTime])
+
+    useEffect(() => {
+        setElapsedBreakTime(0);
+        setDisplayedBreakTime(totalBreakTime);
+        setTimerTime(totalBreakTime);
+        setResetting(1);
+    },[totalBreakTime])
+
+    useEffect(() => {
+        setDisplayedWorkTime(totalWorkTime - elapsedWorkTime);
+        checkIfTimerEnded();    
+    }, [elapsedWorkTime]);
+
+    useEffect(() => {
+        setDisplayedBreakTime(totalBreakTime - elapsedBreakTime);
+        checkIfTimerEnded();
+    }, [elapsedBreakTime]);
 
     useEffect(() => {setTimerTime(mode ? displayedWorkTime : displayedBreakTime)}, [displayedWorkTime, displayedBreakTime, mode]);
 
@@ -68,10 +93,8 @@ const TimerScreen = () => {
     },[timerPlaying])
 
     useEffect(() => {
-        resetting ? mode ? resetWork() : resetBreak() : null;
+        resetting ? mode ? resetWork() : resetBreak() : handleTimerStopped();
     },[resetting])
-
-    useEffect(() => {console.log(mode)}, [mode]);
 
     useCode(() => set(isMode, mode), [mode]);
 
@@ -80,6 +103,8 @@ const TimerScreen = () => {
     useCode(() => set(isAnimPlaying, animPlaying), [animPlaying]);
     
     useCode(() => set(declaredAnimation, activeAnimation), [activeAnimation]);
+
+    useCode(() => set(animationDuration, cond(isMode, totalWorkTime, totalBreakTime)), [totalWorkTime, totalBreakTime, isMode]);
 
     useCode(() => [
         cond(and(not(clockRunning(clock)), isAnimPlaying), startClock(clock)),
@@ -91,8 +116,8 @@ const TimerScreen = () => {
 
     const runTimerAnimation = () => {
         return cond(isMode,
-                set(workCircleAnimProgress, timerAnimation(clock, totalWorkTime, isResetting, endTimerAnimation, endResetting)),
-                set(breakCircleAnimProgress, timerAnimation(clock, totalBreakTime, isResetting, endTimerAnimation, endResetting)));
+                set(workCircleAnimProgress, timerAnimation(clock, animationDuration, isResetting, endTimerAnimation, endResetting)),
+                set(breakCircleAnimProgress, timerAnimation(clock, animationDuration, isResetting, endTimerAnimation, endResetting)));
     }
 
     const runResetAnimation = () => {
@@ -105,8 +130,9 @@ const TimerScreen = () => {
     } 
 
     const runModeAnimation = () => {
+        console.log("Running mode animation");
         return interpolate(
-                set(modeAnimProgress, modeAnimation(clock, endModeAnimation)),
+                set(modeAnimProgress, modeAnimation(clock, isMode, endModeAnimation)),
                 {
                     inputRange: [0, 1],
                     outputRange: [workCircleAnimProgress, breakCircleAnimProgress]
@@ -125,13 +151,24 @@ const TimerScreen = () => {
 
     const endResetting = () => {
         setResetting(0);
-        resetTimer();
     }
 
     const endModeAnimation = () => {
         setAnimPlaying(0);
         setActiveAnimation(animations.TIMER);
     }
+
+    const configureAlarm = () => {
+        alarm.current = new Sound ('alarm.mp3', Sound.MAIN_BUNDLE, (error) => {
+            if(error) {
+                console.log("Error loading alarm: ", error);
+                return;
+            }
+            alarm.current.setNumberOfLoops(-1);
+        })
+        console.log("Configuring alarm.");
+        Sound.setCategory('Playback');
+    } 
 
     const handleInterval = () => {
         interval.current = getInterval();
@@ -149,8 +186,44 @@ const TimerScreen = () => {
     return interval;
     }
 
+    const checkIfTimerEnded = () => {
+        mode ? checkIfWorkTimerEnded() : checkIfBreakTimerEnded();
+    }
+
+    const checkIfWorkTimerEnded = () => {
+        if(totalWorkTime - elapsedWorkTime <= 100) {
+            handleTimerEnd();
+        }
+    }
+
+    const checkIfBreakTimerEnded = () => {
+        if(totalBreakTime - elapsedBreakTime <= 100) {
+            handleTimerEnd();
+        }
+    }
+
     const updateTimes = (time) => {
         mode ? setElapsedWorkTime(elapsedWorkTime + time) : setElapsedBreakTime(elapsedBreakTime + time);
+    }
+
+    const handleTimerEnd = () => {
+        pauseTimer();
+        setTimerStopped(1);
+        playAlarm();
+    }
+
+    const handleTimerStopped = () => {
+        console.log("handling timer stopped");
+        console.log(timerStopped);
+        if(timerStopped){
+            setTimerStopped(0);
+            changeMode(!mode);
+        }
+    }
+
+    const stopTimer = () => {
+        stopAlarm();
+        resetTimer();
     }
 
     const startTimer = () => {
@@ -174,9 +247,13 @@ const TimerScreen = () => {
     }
    
     const changeMode = (id) => {
-        if(id != mode && activeAnimation == animations.TIMER){
+        setMode(id)
+        enableModeAnimation();
+    }
+
+    const enableModeAnimation = () => {
+        if(activeAnimation == animations.TIMER){
             pauseTimer();
-            setMode(id);
             setActiveAnimation(animations.MODE);
             setAnimPlaying(1);
         }
@@ -196,8 +273,16 @@ const TimerScreen = () => {
         setDisplayedBreakTime(totalBreakTime);
     }
 
+    const playAlarm = () => {
+        alarm.current.play();
+    }
+
+    const stopAlarm = () => {
+        alarm.current.stop();
+    }
+
     return (
-        <View style={{alignItems: 'center', width: useWindowDimensions().width,}}>
+        <View style={{height: useWindowDimensions().height - nav.NAV_HEIGHT * 3, alignItems: 'center', width: useWindowDimensions().width,}}>
             <OuterTimer
             mode={mode}
             timerTime={timerTime}
@@ -215,11 +300,12 @@ const TimerScreen = () => {
             <TimerControls
             mode={mode}
             timerPlaying={timerPlaying}
+            timerStopped={timerStopped}
             play={startTimer}
             pause={pauseTimer}
             reset={resetTimer}
+            stop={stopTimer}
             />
-            <LayoutCircle />
         </View>
     );
 };
