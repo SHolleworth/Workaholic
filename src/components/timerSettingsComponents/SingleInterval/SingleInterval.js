@@ -7,6 +7,11 @@ const SingleInterval = (props) => {
   const [value, setValue] = useState(props.initialValue);
 
   useEffect(() => {
+    setValue(props.initialValue);
+    props.updateTime(props.id, value);
+  },[props.initialValue])
+
+  useEffect(() => {
     props.updateTime(props.id, value);
   }, value)
 

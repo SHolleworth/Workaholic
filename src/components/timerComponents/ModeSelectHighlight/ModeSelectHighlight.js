@@ -5,7 +5,7 @@ import colors from '../../../constants/colors';
 import styles from './styles'
 
 const ModeSelectHighlight = ({mode, progress}) => {
-    const width = useWindowDimensions().width * .5;
+    const width = (useWindowDimensions().width * .95 / 2);
 
     const inputRange = [0,1];
     const translation = interpolate(progress,
@@ -25,13 +25,11 @@ const ModeSelectHighlight = ({mode, progress}) => {
         <Animated.View style={[
             styles.highlight,
             {
-                height: useWindowDimensions().height / 6,
                 backgroundColor: colors.SECONDARY,
                 width: width,
                 borderRadius: 30,
                 transform: [{translateX: translation}],
-            },
-            {...borderRadii}]}>
+            }]}>
         </Animated.View>
     );
 };

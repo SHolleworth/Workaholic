@@ -3,9 +3,8 @@ import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
-        flex: 2,
+        flex: 1.5,
         marginTop: 10,
-        marginBottom: 20,
     },
     textContainer: {
         position: 'absolute',

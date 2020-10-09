@@ -1,62 +1,32 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {View, useWindowDimensions} from 'react-native';
+import screenTransition from '../../animations/screenTransition';
 import TimerScreen from '../../screens/TimerScreen';
 import Navigation from '../../components/navigationComponents/Navigation';
 import LayoutCircle from '../../components/LayoutCircle';
 import styles from './styles';
 import TimerSettingsScreen from '../../screens/TimeSettingsScreen/TimeSettingsScreen';
-import Animated, { cond, Easing, interpolate, stopClock } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 const {
     Clock,
+    cond,
+    interpolate,
+    stopClock, 
     clockRunning,
     and,
-    call,
-    block,
     not,
     set,
     startClock,
     useCode,
-    timing,
     Value 
 } = Animated;
 
-const screenTransition = (clock, finish) => {
-    const state = {
-        finished: new Value(0),
-        position: new Value(0),
-        time: new Value(0),
-        frameTime: new Value(0),
-    };
-
-    const config = {
-        duration: new Value(500),
-        toValue: new Value(1),
-        easing: Easing.inOut(Easing.ease),
-    };
-
-    return (block([
-        cond(state.finished,
-        [
-            set(state.finished, 0),
-            set(state.time, 0),
-            set(state.frameTime, 0),
-            set(config.toValue, not(config.toValue)),
-            call([], finish),
-            stopClock(clock),
-        ]),
-        cond(clockRunning(clock), timing(clock, state, config)),
-        state.position
-    ]));
-}
-
-const ScreenContainer = () => {
+const ScreenContainer = ({totalWorkTime, totalBreakTime, setTotalWorkTime, setTotalBreakTime}) => {
     const width =  useWindowDimensions().width * 2;
 
     const [mode, setMode] = useState(1);
     const [activeScreen, setActiveScreen] = useState(0);
-    const [totalWorkTime, setTotalWorkTime] = useState(25*60000);
-    const [totalBreakTime, setTotalBreakTime] = useState(5*60000);
 
     const [playing, setPlaying] = useState(0);
     const clock = useRef(new Clock()).current;
@@ -98,12 +68,15 @@ const ScreenContainer = () => {
                 <TimerSettingsScreen
                     mode={mode}
                     setMode={setMode}
+                    totalWorkTime={totalWorkTime}
+                    totalBreakTime={totalBreakTime}
                     setTotalWorkTime={setTotalWorkTime}
                     setTotalBreakTime={setTotalBreakTime}
                     transitionScreen={transitionScreen}
                 />
             </Animated.View>
-            <Navigation 
+            <Navigation
+                mode={mode}
                 progress={progress} 
                 activeScreen={activeScreen}
                 transitionScreen={transitionScreen}

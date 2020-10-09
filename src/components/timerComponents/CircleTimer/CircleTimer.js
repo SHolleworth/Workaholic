@@ -35,7 +35,7 @@ const CircleTimer = (props) => {
       <Circle
         cx={props.radius + 3} cy={props.radius + 3} r={fullRad}
         stroke={colors.PRIMARY}
-        strokeWidth={4} />
+        strokeWidth={2} />
       <AnimatedCircle cx={props.radius - 3} cy={props.radius + 3} r={fullRad}
         stroke={props.mode ? colors.WORK_HIGHLIGHT: colors.BREAK_HIGHLIGHT}
         strokeWidth={5}

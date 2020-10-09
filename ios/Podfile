@@ -20,6 +20,8 @@ target 'Workaholic' do
 
   pod 'react-native-notifications', :path => '../node_modules/react-native-notifications'
 
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
+
   target 'WorkaholicTests' do
     inherit! :complete
     # Pods for testing

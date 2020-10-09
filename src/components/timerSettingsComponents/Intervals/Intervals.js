@@ -9,6 +9,7 @@ const Intervals = (props) => {
       <Text style={ styles.timerHeaderText }>work time</Text>
       <IntervalSetter 
         mode={1}
+        totalTime={props.totalWorkTime}
         setMode={props.setMode}
         setActiveInterval={props.setActiveInterval}
         active={props.activeInterval}
@@ -19,6 +20,7 @@ const Intervals = (props) => {
       <Text style={[ styles.timerHeaderText, {marginTop: 10} ]}>break time</Text>
       <IntervalSetter
          mode={0}
+         totalTime={props.totalBreakTime}
          setMode={props.setMode}
          setActiveInterval={props.setActiveInterval}
          active={props.activeInterval}

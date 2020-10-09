@@ -9,6 +9,7 @@ const styles = StyleSheet.create({
         width: 70,
         borderRadius: 40,
         backgroundColor: colors.BACKGROUND,
+        zIndex: 6,
     },
 
     image: {

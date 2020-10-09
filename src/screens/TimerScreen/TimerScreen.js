@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {View, useWindowDimensions} from 'react-native';
+import {View, useWindowDimensions, AppState} from 'react-native';
 import Animated, { Easing } from 'react-native-reanimated';
 import BackgroundTimer from 'react-native-background-timer';
 import Sound from 'react-native-sound';
-import { Notifications } from 'react-native-notifications';
+import PushNotification from 'react-native-push-notification';
 import OuterTimer from '../../components/timerComponents/OuterTimer';
 import ModeControls from '../../components/timerComponents/ModeControls';
 import TimerControls from '../../components/timerComponents/TimerControls';
@@ -28,7 +28,31 @@ const {
     interpolate,
 } = Animated;
 
+
+PushNotification.createChannel(
+    {
+      channelId: "workaholic", // (required)
+      channelName: "Timer Channe;", // (required)
+    },
+    (created) => console.log(`createChannel returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
+  );
+
 const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
+
+    PushNotification.configure({
+        onNotification: function (notification) {
+            stopTimer();
+            notification.finish();
+        },
+
+        onAction: function (notification) {;
+            if(notification.action === 'DISMISS') {
+                stopAlarm();
+            }
+        },
+        
+        requestPermissions: Platform.OS === 'ios'
+    })
 
     const interval = useRef(null);
     const alarm = useRef(null);
@@ -57,7 +81,6 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
 
     useEffect(() => {
         configureAlarm();
-        configureNotifications();
         return (() => {alarm.current.release()})
     },[])
 
@@ -98,6 +121,10 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
         resetting ? mode ? resetWork() : resetBreak() : handleTimerStopped();
     },[resetting])
 
+    useEffect(() => {
+        changeMode(mode);
+    },[mode])
+
     useCode(() => set(isMode, mode), [mode]);
 
     useCode(() => set(isResetting, resetting), [resetting]);
@@ -132,7 +159,6 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
     } 
 
     const runModeAnimation = () => {
-        console.log("Running mode animation");
         return interpolate(
                 set(modeAnimProgress, modeAnimation(clock, isMode, endModeAnimation)),
                 {
@@ -168,21 +194,7 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
             }
             alarm.current.setNumberOfLoops(-1);
         })
-        console.log("Configuring alarm.");
         Sound.setCategory('Playback');
-    }
-
-    const configureNotifications = () => {
-        Notifications.events().registerNotificationReceivedForeground((notification, completion) => {
-            completion({alert:false, sound: false, badge: false});
-        });
-        Notifications.events().registerNotificationReceivedBackground((notification, completion) => {
-            completion({alert: true, sound: true, badge: true});
-        });
-        Notifications.events().registerNotificationOpened((notification, completion) => {
-            stopTimer();
-            completion();
-        })
     }
 
     const handleInterval = () => {
@@ -222,10 +234,25 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
     }
 
     const handleTimerEnd = () => {
-        pauseTimer();            
-        sendNotification();
+        pauseTimer();     
+        sendNotification();       
         setTimerStopped(1);
         playAlarm();
+    }
+
+    const sendNotification = () => {
+        const title = mode ? "Take a break!" : "Back to work.";
+        const modeMessage = mode ? "Work " : "Break ";
+        const now = new Date(Date.now());
+        const message = modeMessage + `finished at ${now.getHours()}:${now.getMinutes()}`; 
+        PushNotification.localNotification({
+            channelId: 'workaholic',
+            title,
+            message,
+            invokeApp: false,
+            actions: ["DISMISS"],
+            ignoreInForeground: true,
+        })
     }
 
     const handleTimerStopped = () => {
@@ -233,18 +260,6 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
             setTimerStopped(0);
             changeMode(!mode);
         }
-    }
-
-    const sendNotification = () => {
-        const time = new Date(Date.now());
-        const title = mode ? "Take a break!" : "Back to work.";
-        const modeString = mode ? "Work time" : "Break time"
-        const body = modeString + ` finished at ${time.getHours()}:${time.getMinutes()}.`;
-
-        Notifications.postLocalNotification({
-            title,
-            body,
-        })
     }
 
     const stopTimer = () => {
@@ -273,8 +288,10 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
     }
    
     const changeMode = (id) => {
-        setMode(id)
-        enableModeAnimation();
+        if(activeAnimation == animations.TIMER){
+            setMode(id)
+            enableModeAnimation();
+        }
     }
 
     const enableModeAnimation = () => {
@@ -308,7 +325,7 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
     }
 
     return (
-        <View style={{height: useWindowDimensions().height - nav.NAV_HEIGHT * 3, alignItems: 'center', width: useWindowDimensions().width,}}>
+        <View style={{height: useWindowDimensions().height - nav.NAV_HEIGHT, alignItems: 'center', width: useWindowDimensions().width}}>
             <OuterTimer
             mode={mode}
             timerTime={timerTime}

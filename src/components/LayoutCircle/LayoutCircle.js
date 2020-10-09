@@ -15,7 +15,7 @@ const LayoutCircle = ({mode, progress}) => {
     const translation = interpolate(progress,
         {
             inputRange: [0,1],
-            outputRange: [diameter*2 - navDimensions.NAV_HEIGHT * 2, 0]
+            outputRange: [diameter*2 - navDimensions.NAV_HEIGHT * 1.6, 0]
         }) 
 
     return (

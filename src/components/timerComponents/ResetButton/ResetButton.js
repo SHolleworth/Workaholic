@@ -13,7 +13,7 @@ const ResetButton = ({reset}) => {
     const height = useWindowDimensions().height / 12;
 
     return (
-        <TouchableOpacity onPress={handlePress}>
+        <TouchableOpacity style={[styles.button, {height, width:height, borderRadius: height/2}]} onPress={handlePress}>
             <View style={[styles.button, {height, width:height, borderRadius: height/2}]}>
                 <Image style={styles.image} source={resetIcon}/>
             </View>

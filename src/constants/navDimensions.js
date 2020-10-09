@@ -1,3 +1,3 @@
 export default {
-    NAV_HEIGHT: 50,
+    NAV_HEIGHT: 70,
 }

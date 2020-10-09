@@ -33,7 +33,7 @@ const PlayPauseStopButton = ({mode, timerPlaying, timerStopped, play, pause, sto
     const height = useWindowDimensions().height / 8;
 
     return (
-        <TouchableOpacity onPress={handlePress}>
+        <TouchableOpacity onPress={handlePress} touchSoundDisabled={false}>
             <View style={[styles.button, {height, width: height, borderRadius: height / 2 , backgroundColor: colors.BACKGROUND, borderColor: mode ? colors.WORK_HIGHLIGHT : colors.BREAK_HIGHLIGHT}]}>
                 <Image style={styles.image} source={icon}/>
             </View>

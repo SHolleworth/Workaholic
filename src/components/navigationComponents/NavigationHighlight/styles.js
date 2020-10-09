@@ -5,11 +5,9 @@ import nav from '../../../constants/navDimensions';
 const styles = StyleSheet.create({
     container: {
         position: 'absolute',
-        top:0, right: 0, bottom: 0, left: 0,
-        borderRadius: 30,
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        height: nav.height,
+        top:5, right: 0, bottom: 0, left: 0,
+        borderRadius: 25,
+        height: nav.NAV_HEIGHT - 10,
         backgroundColor: colors.SECONDARY,
     },
 });

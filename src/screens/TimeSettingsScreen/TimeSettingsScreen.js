@@ -3,25 +3,51 @@ import {View, useWindowDimensions} from 'react-native';
 import Intervals from '../../components/timerSettingsComponents/Intervals';
 import Keypad from '../../components/timerSettingsComponents/Keypad';
 import nav from '../../constants/navDimensions';
+import convertTime from '../../constants/convertTime';
 
-const TimerSettingsScreen = ({mode, setMode, setTotalBreakTime, setTotalWorkTime, transitionScreen}) => {
+const TimerSettingsScreen = ({
+        mode,
+        setMode, 
+        totalWorkTime, 
+        totalBreakTime, 
+        setTotalBreakTime, 
+        setTotalWorkTime, 
+        transitionScreen
+    }) => {
     const height = useWindowDimensions().height - nav.NAV_HEIGHT * 2;
     
-    const [activeInterval, setActiveInterval] = useState(3);
-    const [hasMounted, setHasMounted] = useState(false);
-    const BREAK_HOURS = 0;
-    const BREAK_MINUTES = 1;
-    const BREAK_SECONDS = 2;
-    const WORK_HOURS = 3;
-    const WORK_MINUTES = 4;
-    const WORK_SECONDS = 5;
-    const [intervals, setIntervals] = useState([[0,0],[0,5],[0,0], [0,0],[2,5],[0,0]]);
+    const [activeInterval, setActiveInterval] = useState(4);
+    const BREAK = 0;
+    const WORK = 1;
+    const HOURS = 0;
+    const MINUTES = 1;
+    const SECONDS = 2
+    const [intervals, setIntervals] = useState([[[0,0],[0,0],[0,0]], [[0,0],[0,0],[0,0]]]);
     const [newValue, setNewValue] = useState(0);
-    const [intervalsAreSet , setIntervalsAreSet] = useState(false);
 
     useEffect(() => {
         confirm();
     },[intervals])
+
+    useEffect(() => {
+        loadInitalValues();
+    },[])
+    
+    const loadInitalValues = () => {
+        if(totalWorkTime && totalBreakTime){
+            let time = convertTime(totalWorkTime);
+            let hours = [Math.floor(time.hours/10), time.hours % 10];
+            let minutes = [Math.floor(time.minutes/10), time.minutes % 10];
+            let seconds = [Math.floor(time.seconds/10), time.seconds % 10];
+            const workValues = [hours, minutes, seconds];
+            time = convertTime(totalBreakTime);
+            hours = [Math.floor(time.hours/10), time.hours % 10];
+            minutes = [Math.floor(time.minutes/10), time.minutes % 10];
+            seconds = [Math.floor(time.seconds/10), time.seconds % 10];
+            const breakValues = [hours, minutes, seconds];
+            setIntervals([breakValues, workValues]);
+        }
+    }
 
     //receives signal fromkeypad and sends value to IntervalSetter
     const sendNumber = (value) => {
@@ -35,19 +61,21 @@ const TimerSettingsScreen = ({mode, setMode, setTotalBreakTime, setTotalWorkTime
 
     //receives signal from IntervalSetter after a value change
     const updateTime = (id, value)=> {
+        const idMode = Math.floor(id/3);
+        const idInterval = id%3;
         let temp = intervals.slice();
-        temp[id] = value;
+        temp[idMode][idInterval] = value;
         setIntervals(temp);
     }
 
     const confirm = () => {
-        const breakHours = intervals[BREAK_HOURS][0] * 10 + intervals[BREAK_HOURS][1];
-        const breakMinutes = intervals[BREAK_MINUTES][0] * 10 + intervals[BREAK_MINUTES][1];
-        const breakSeconds = intervals[BREAK_SECONDS][0] * 10 + intervals[BREAK_SECONDS][1];
+        const breakHours = intervals[BREAK][HOURS][0] * 10 + intervals[BREAK][HOURS][1];
+        const breakMinutes = intervals[BREAK][MINUTES][0] * 10 + intervals[BREAK][MINUTES][1];
+        const breakSeconds = intervals[BREAK][SECONDS][0] * 10 + intervals[BREAK][SECONDS][1];
 
-        const workHours = intervals[WORK_HOURS][0] * 10 + intervals[WORK_HOURS][1];
-        const workMinutes = intervals[WORK_MINUTES][0] * 10 + intervals[WORK_MINUTES][1];
-        const workSeconds = intervals[WORK_SECONDS][0] * 10 + intervals[WORK_SECONDS][1];
+        const workHours = intervals[WORK][HOURS][0] * 10 + intervals[WORK][HOURS][1];
+        const workMinutes = intervals[WORK][MINUTES][0] * 10 + intervals[WORK][MINUTES][1];
+        const workSeconds = intervals[WORK][SECONDS][0] * 10 + intervals[WORK][SECONDS][1];
 
         const breakMillis = convertToMillis(breakSeconds, breakMinutes, breakHours);
         const workMillis = convertToMillis(workSeconds, workMinutes, workHours);
@@ -74,6 +102,8 @@ const TimerSettingsScreen = ({mode, setMode, setTotalBreakTime, setTotalWorkTime
     return (
         <View style={{height, width: useWindowDimensions().width, justifyContent: 'center', alignItems: 'center'}}>
             <Intervals
+                totalWorkTime={totalWorkTime}
+                totalBreakTime={totalBreakTime}
                 activeInterval={activeInterval}
                 setActiveInterval={setActiveInterval}
                 newValue={newValue}
@@ -83,7 +113,7 @@ const TimerSettingsScreen = ({mode, setMode, setTotalBreakTime, setTotalWorkTime
             <Keypad
                 mode={mode}
                 sendNumber={sendNumber}
-                intervalsAreSet={intervalsAreSet}/>
+                />
         </View>
     );
 };

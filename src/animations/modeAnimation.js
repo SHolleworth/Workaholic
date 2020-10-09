@@ -1,4 +1,5 @@
 import Animated, { call, Easing } from 'react-native-reanimated';
+import cEasing from '../constants/customEasing';
 
 const {
     stopClock,
@@ -22,7 +23,7 @@ const run = (clock, isMode, finish) => {
     const config = {
         duration: new Value(500),
         toValue: new Value(0),
-        easing: Easing.inOut(Easing.ease),
+        easing: Easing.inOut(cEasing.mid),
     }
 
     return(block([

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Image, TouchableWithoutFeedback, View} from 'react-native';
+import {Image, TouchableWithoutFeedback, View, Text} from 'react-native';
 import styles from './styles'
 
 const NavigationTouchable = ({id, activeScreen, img, transitionScreen}) => {
@@ -24,16 +24,19 @@ const NavigationTouchable = ({id, activeScreen, img, transitionScreen}) => {
 
     return (
         <TouchableWithoutFeedback 
-        onPress={handlePress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}>
-            <View style={styles.container}>
+            onPress={handlePress}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            disabled={activeScreen === id ? true : false}
+            >
+            <View style={[styles.container,
+                        {
+                            opacity : pressed ? 1.0 : checkIfActive() ? 1.0 : 0.3,
+                        }
+                        ]}>
                 <Image 
-                style={[styles.image, 
-                    {
-                        opacity : pressed ? 1.0 : checkIfActive() ? 1.0 : 0.5,
-                    }
-                    ]} source={img}/>
+                    style={styles.image} source={img}/>
+                <Text style={[styles.text]}>{id ? "Set Time" : "Timer"}</Text>
             </View>
         </TouchableWithoutFeedback>
     );
