@@ -2,8 +2,9 @@ import React from 'react';
 import {useWindowDimensions, View} from 'react-native';
 import Animated from 'react-native-reanimated';
 import styles from './styles'
+import colors from '../../../constants/colors';
 
-const NavigationHighlight = ({progress}) => {
+const NavigationHighlight = ({mode, progress}) => {
     const width = (useWindowDimensions().width / 2) - 10;
 
     const translateX = Animated.interpolate(progress,
@@ -13,7 +14,7 @@ const NavigationHighlight = ({progress}) => {
         })
 
     return (
-        <Animated.View style={[styles.container, { width, transform:[{ translateX }] }]}>
+        <Animated.View style={[styles.container, { width, transform:[{ translateX }]}]}>
         </Animated.View>
     );
 };

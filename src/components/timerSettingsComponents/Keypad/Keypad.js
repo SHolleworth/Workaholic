@@ -18,7 +18,8 @@ const Keypad = (props) => {
         alignItems: 'center',
         flexDirection:'row',
         flexWrap:'wrap',
-        width: 300,
+        height: 260,
+        width: 250,
         marginTop: 20}}>
       {[1,2,3,4,5,6,7,8,9,CONFIRM,0,DELETE].map( (e, i) =>
         <NumericKey 

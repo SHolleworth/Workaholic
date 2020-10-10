@@ -2,9 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import ScreenContainer from './src/containers/ScreenContainer';
+import SplashScreen from './src/screens/SplashScreen';
 
 const App = () => {
   const [loaded, setLoaded] = useState(0);
+  const [showSplash, setShowSplash] = useState(1);
   const [totalWorkTime, setTotalWorkTime] = useState(0);
   const [totalBreakTime, setTotalBreakTime] = useState(0);
 
@@ -15,6 +17,17 @@ const App = () => {
   useEffect(() => {
     saveTotals();
   },[totalWorkTime, totalBreakTime])
+
+  useEffect(() => {
+    loaded ? waitOnSplashScreen() : null; 
+  },[loaded])
+
+  const waitOnSplashScreen = () => {
+    setShowSplash(1);
+    setTimeout(() => {
+      setShowSplash(0);
+    },1000)
+  }
  
   const saveTotals = async () => {
     try {
@@ -46,7 +59,7 @@ const App = () => {
   }
 
   if(loaded) {
-    return (
+      return (
       <View style={{flex: 1}}>
         <ScreenContainer 
         totalWorkTime={totalWorkTime}
@@ -55,11 +68,12 @@ const App = () => {
         setTotalBreakTime={setTotalBreakTime}
         saveTotals={saveTotals}
         />
+        {showSplash ? <SplashScreen /> : null}
       </View>
     );
   }
   else {
-    return null;
+    return <SplashScreen />;
   }
 };
 

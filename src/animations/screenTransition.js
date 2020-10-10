@@ -13,7 +13,7 @@ const {
     Value 
 } = Animated;
 
-const run = (clock, finish) => {
+const run = (clock, dest, finish) => {
     const state = {
         finished: new Value(0),
         position: new Value(0),
@@ -37,7 +37,11 @@ const run = (clock, finish) => {
             call([], finish),
             stopClock(clock),
         ]),
-        cond(clockRunning(clock), timing(clock, state, config)),
+        cond(clockRunning(clock),
+        [
+            set(config.toValue, dest),
+            timing(clock, state, config),
+        ]),
         state.position
     ]));
 }

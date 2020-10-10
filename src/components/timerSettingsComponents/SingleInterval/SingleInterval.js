@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, TouchableWithoutFeedback} from 'react-native';
+import {View, Text, TouchableWithoutFeedback, useWindowDimensions} from 'react-native';
 import colors from '../../../constants/colors';
 import styles from './styles';
 
@@ -46,6 +46,8 @@ const SingleInterval = (props) => {
     }
   }
 
+  const fontSize = useWindowDimensions().width / 5
+
   return (
     <TouchableWithoutFeedback
       onPress={handlePress}
@@ -55,7 +57,8 @@ const SingleInterval = (props) => {
           props.mode ?
           isActive() ? colors.WORK_HIGHLIGHT : 'white'
           :
-          isActive() ? colors.BREAK_HIGHLIGHT : 'white'
+          isActive() ? colors.BREAK_HIGHLIGHT : 'white',
+          fontSize,
       }]}
       > { value.map(e => e) } </Text>
     </TouchableWithoutFeedback>

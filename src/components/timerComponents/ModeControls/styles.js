@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
         width: "95%",
         marginTop: 0,
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'space-around',
         backgroundColor: colors.DARK,
         borderRadius: 32,
     },

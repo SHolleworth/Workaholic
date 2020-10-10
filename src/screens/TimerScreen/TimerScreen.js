@@ -31,28 +31,13 @@ const {
 
 PushNotification.createChannel(
     {
-      channelId: "workaholic", // (required)
-      channelName: "Timer Channe;", // (required)
+      channelId: "workaholic",
+      channelName: "Timer Channe;",
     },
-    (created) => console.log(`createChannel returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
+    (created) => console.log(`createChannel returned '${created}'`)
   );
 
-const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
-
-    PushNotification.configure({
-        onNotification: function (notification) {
-            stopTimer();
-            notification.finish();
-        },
-
-        onAction: function (notification) {;
-            if(notification.action === 'DISMISS') {
-                stopAlarm();
-            }
-        },
-        
-        requestPermissions: Platform.OS === 'ios'
-    })
+const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen}) => {
 
     const interval = useRef(null);
     const alarm = useRef(null);
@@ -81,21 +66,29 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
 
     useEffect(() => {
         configureAlarm();
+        PushNotification.configure({
+            onNotification: function (notification) {
+                stopTimer();
+                notification.finish();
+            },
+        
+            onAction: function (notification) {;
+                if(notification.action === 'DISMISS') {
+                    stopAlarm();
+                }
+            },
+            
+            requestPermissions: Platform.OS === 'ios'
+        })
         return (() => {alarm.current.release()})
     },[])
 
     useEffect(() => {
-        setElapsedWorkTime(0);
-        setDisplayedWorkTime(totalWorkTime);
-        setTimerTime(totalWorkTime);
-        setResetting(1);
+        resetTimer();
     },[totalWorkTime])
 
     useEffect(() => {
-        setElapsedBreakTime(0);
-        setDisplayedBreakTime(totalBreakTime);
-        setTimerTime(totalBreakTime);
-        setResetting(1);
+        resetTimer();
     },[totalBreakTime])
 
     useEffect(() => {
@@ -187,7 +180,7 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
     }
 
     const configureAlarm = () => {
-        alarm.current = new Sound ('alarm.mp3', Sound.MAIN_BUNDLE, (error) => {
+        alarm.current = new Sound ('cool_alarm.mp3', Sound.MAIN_BUNDLE, (error) => {
             if(error) {
                 console.log("Error loading alarm: ", error);
                 return;
@@ -241,10 +234,15 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
     }
 
     const sendNotification = () => {
+
         const title = mode ? "Take a break!" : "Back to work.";
+
         const modeMessage = mode ? "Work " : "Break ";
+
         const now = new Date(Date.now());
+
         const message = modeMessage + `finished at ${now.getHours()}:${now.getMinutes()}`; 
+        
         PushNotification.localNotification({
             channelId: 'workaholic',
             title,
@@ -252,6 +250,9 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
             invokeApp: false,
             actions: ["DISMISS"],
             ignoreInForeground: true,
+            largeIcon: 'timer_icon_round',
+            smallIcon: 'timer_icon_round',
+            data: {dismiss: stopAlarm()},        
         })
     }
 
@@ -275,8 +276,10 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime}) => {
     }
 
     const pauseTimer = () => {
-        setTimerPlaying(0);
-        setAnimPlaying(0);
+        if(activeAnimation === animations.TIMER){
+            setTimerPlaying(0);
+            setAnimPlaying(0);
+        }
     }
 
     const resetTimer = () => {

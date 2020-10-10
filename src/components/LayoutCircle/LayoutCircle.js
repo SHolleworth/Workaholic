@@ -27,7 +27,7 @@ const LayoutCircle = ({mode, progress}) => {
             <Svg height={useWindowDimensions().height} width={diameter}>
                 <AnimatedCircle 
                 cx={radius} cy={translation} r={radius + 1}
-                fill={colors.PRIMARY}
+                fill={colors.DARK}
                 />
             </Svg>
         </View>

@@ -13,7 +13,7 @@ const Navigation = ({mode, progress, activeScreen, transitionScreen}) => {
 
     return (
         <View style={[styles.container, {top, width}]}>
-            <NavigationHighlight progress={progress}/>
+            <NavigationHighlight mode={mode} progress={progress}/>
             <NavigationTouchable id={0} activeScreen={activeScreen} img={timerIcom} transitionScreen={transitionScreen}/>
             <NavigationTouchable id={1} activeScreen={activeScreen} img={settingsIcon} transitionScreen={transitionScreen}/>
         </View>

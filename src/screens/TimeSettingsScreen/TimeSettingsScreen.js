@@ -31,7 +31,20 @@ const TimerSettingsScreen = ({
 
     useEffect(() => {
         loadInitalValues();
-    },[])
+    },[totalWorkTime, totalBreakTime])
+
+    useEffect(() => {
+        if(mode) {
+            if (activeInterval !== 3 && activeInterval !== 4 && activeInterval !== 5) {
+                setActiveInterval(4)
+            }
+         }
+        else {
+            if (activeInterval !== 0 && activeInterval !== 1 && activeInterval !== 2) {
+                setActiveInterval(1)
+            }
+        }
+    },[mode])
     
     const loadInitalValues = () => {
         if(totalWorkTime && totalBreakTime){
