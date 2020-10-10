@@ -10,7 +10,6 @@ const Intervals = (props) => {
       <IntervalSetter 
         mode={1}
         totalTime={props.totalWorkTime}
-        setMode={props.setMode}
         setActiveInterval={props.setActiveInterval}
         active={props.activeInterval}
         newValue={props.newValue}
@@ -21,7 +20,6 @@ const Intervals = (props) => {
       <IntervalSetter
          mode={0}
          totalTime={props.totalBreakTime}
-         setMode={props.setMode}
          setActiveInterval={props.setActiveInterval}
          active={props.activeInterval}
          newValue={props.newValue}

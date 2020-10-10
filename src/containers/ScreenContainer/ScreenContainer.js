@@ -56,8 +56,10 @@ const ScreenContainer = ({totalWorkTime, totalBreakTime, setTotalWorkTime, setTo
     }
 
     const transitionScreen = (screenId) => {
-        setActiveScreen(screenId);
-        setPlaying(1);
+        if(!playing){
+            setActiveScreen(screenId);
+            setPlaying(1);
+        }
     }
 
     const handleSwipe = ({nativeEvent}) => {

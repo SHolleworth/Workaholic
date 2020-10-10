@@ -26,10 +26,6 @@ const TimerSettingsScreen = ({
     const [newValue, setNewValue] = useState(0);
 
     useEffect(() => {
-        confirm();
-    },[intervals])
-
-    useEffect(() => {
         loadInitalValues();
     },[totalWorkTime, totalBreakTime])
 
@@ -65,7 +61,7 @@ const TimerSettingsScreen = ({
     //receives signal fromkeypad and sends value to IntervalSetter
     const sendNumber = (value) => {
         if(value === -5){
-            transitionScreen(0);
+            confirm();
         }
         else{
             setNewValue(value);
@@ -82,6 +78,12 @@ const TimerSettingsScreen = ({
     }
 
     const confirm = () => {
+        if(activeInterval > 2){
+            setMode(1);
+        }
+        else {
+            setMode(0);
+        }
         const breakHours = intervals[BREAK][HOURS][0] * 10 + intervals[BREAK][HOURS][1];
         const breakMinutes = intervals[BREAK][MINUTES][0] * 10 + intervals[BREAK][MINUTES][1];
         const breakSeconds = intervals[BREAK][SECONDS][0] * 10 + intervals[BREAK][SECONDS][1];
@@ -94,6 +96,7 @@ const TimerSettingsScreen = ({
         const workMillis = convertToMillis(workSeconds, workMinutes, workHours);
         setTotalBreakTime(breakMillis);
         setTotalWorkTime(workMillis);
+        transitionScreen(0);
     }
 
     const convertToMillis = (s, m , h) => {
@@ -120,7 +123,6 @@ const TimerSettingsScreen = ({
                 activeInterval={activeInterval}
                 setActiveInterval={setActiveInterval}
                 newValue={newValue}
-                setMode={setMode}
                 sendNumber={sendNumber}
                 updateTime={updateTime}/>
             <Keypad

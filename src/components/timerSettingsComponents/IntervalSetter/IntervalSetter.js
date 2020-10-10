@@ -34,7 +34,6 @@ const IntervalSetter = ({totalTime, ...props}) => {
         <View style={{flexDirection: 'row'}} key={i}>
           <SingleInterval
             mode={props.mode}
-            setMode={props.setMode}
             id={i+delta}
             key={i+delta}
             setActiveInterval={props.setActiveInterval}

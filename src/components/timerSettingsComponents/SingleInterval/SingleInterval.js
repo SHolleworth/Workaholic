@@ -25,7 +25,6 @@ const SingleInterval = (props) => {
   },[props.newValue])
 
   const handlePress = () => {
-    props.setMode(props.mode);
     props.setActiveInterval(props.id);
   }
 
@@ -54,7 +53,7 @@ const SingleInterval = (props) => {
     >
       <Text style={[styles.text,
       { color:
-          props.mode ?
+          props.id > 2 ?
           isActive() ? colors.WORK_HIGHLIGHT : 'white'
           :
           isActive() ? colors.BREAK_HIGHLIGHT : 'white',

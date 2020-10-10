@@ -66,29 +66,18 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen
 
     useEffect(() => {
         configureAlarm();
-        PushNotification.configure({
-            onNotification: function (notification) {
-                stopTimer();
-                notification.finish();
-            },
-        
-            onAction: function (notification) {;
-                if(notification.action === 'DISMISS') {
-                    stopAlarm();
-                }
-            },
-            
-            requestPermissions: Platform.OS === 'ios'
-        })
+        configureNotification();
         return (() => {alarm.current.release()})
     },[])
 
     useEffect(() => {
-        resetTimer();
+        resetWork();
+        setResetting(1);
     },[totalWorkTime])
 
     useEffect(() => {
-        resetTimer();
+        resetBreak();
+        setResetting(1);
     },[totalBreakTime])
 
     useEffect(() => {
@@ -231,6 +220,23 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen
         sendNotification();       
         setTimerStopped(1);
         playAlarm();
+    }
+
+    const configureNotification = () => {
+        PushNotification.configure({
+            onNotification: function (notification) {
+                stopTimer();
+                notification.finish();
+            },
+        
+            onAction: function (notification) {;
+                if(notification.action === 'DISMISS') {
+                    stopAlarm();
+                }
+            },
+            
+            requestPermissions: Platform.OS === 'ios'
+        })
     }
 
     const sendNotification = () => {
