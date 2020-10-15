@@ -5,10 +5,10 @@ import colors from '../../../constants/colors';
 
 const PlayPauseStopButton = ({mode, timerPlaying, timerStopped, play, pause, stop}) => {
 
-    const pauseIcon = '../../../assets/images/pause.png';
-    const playIcon = '../../../assets/images/play.png';
-    const stopIcon = '../../../assets/images/stop.png';
-    const [icon, setIcon] = useState(require(playIcon));
+    const pauseIcon = require('../../../assets/images/pause.png');
+    const playIcon = require('../../../assets/images/play.png');
+    const stopIcon = require('../../../assets/images/stop.png');
+    const [icon, setIcon] = useState(playIcon);
 
     const handlePress = () => {
         timerStopped ?
@@ -22,12 +22,12 @@ const PlayPauseStopButton = ({mode, timerPlaying, timerStopped, play, pause, sto
 
     useEffect(() => {
         timerStopped ?
-            setIcon(require(stopIcon))
+            setIcon(stopIcon)
         :
             timerPlaying ?
-                setIcon(require(pauseIcon))
+                setIcon(pauseIcon)
             :
-                setIcon(require(playIcon));
+                setIcon(playIcon);
     },[timerPlaying, timerStopped])
 
     const height = useWindowDimensions().height / 8;

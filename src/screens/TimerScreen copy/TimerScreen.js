@@ -42,8 +42,6 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen
     const interval = useRef(null);
     const alarm = useRef(null);
 
-    const appState = useRef(AppState.currentState);
-
     const [elapsedWorkTime, setElapsedWorkTime] = useState(0);
     const [elapsedBreakTime, setElapsedBreakTime] = useState(0);
     const [displayedWorkTime, setDisplayedWorkTime] = useState(0);
@@ -69,28 +67,21 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen
     useEffect(() => {
         configureAlarm();
         configureNotification();
-        AppState.addEventListener('change', handleAppStateChange);
-        return (() => {
-        alarm.current.release();
-        AppState.removeEventListener('change', handleAppStateChange);
-        })
+        return (() => {alarm.current.release()})
     },[])
 
     useEffect(() => {
-        pauseTimer();
         resetWork();
         setResetting(1);
     },[totalWorkTime])
 
     useEffect(() => {
-        pauseTimer();
         resetBreak();
         setResetting(1);
     },[totalBreakTime])
 
     useEffect(() => {
         setDisplayedWorkTime(totalWorkTime - elapsedWorkTime);
-        //console.log("Elapsed Time: ", elapsedWorkTime);
         checkIfTimerEnded();    
     }, [elapsedWorkTime]);
 
@@ -177,13 +168,6 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen
         setActiveAnimation(animations.TIMER);
     }
 
-    const handleAppStateChange = (nextAppState) => {
-        if(nextAppState === 'active'){
-            PushNotification.cancelAllLocalNotifications();
-        }
-        appState.current = nextAppState;
-    }
-
     const configureAlarm = () => {
         alarm.current = new Sound ('cool_alarm.mp3', Sound.MAIN_BUNDLE, (error) => {
             if(error) {
@@ -193,14 +177,6 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen
             alarm.current.setNumberOfLoops(-1);
         })
         Sound.setCategory('Playback');
-    }
-
-    const playAlarm = () => {
-        alarm.current.play();
-    }
-
-    const stopAlarm = () => {
-        alarm.current.stop();
     }
 
     const handleInterval = () => {
@@ -214,16 +190,9 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen
         const startTime = Date.now();
         let interval = BackgroundTimer.setInterval(() => {
             const time = Date.now() - startTime;
-            if(appState.current == 'active'){
-                console.log("Updating time, appstate: " + appState.current);
-                updateTimes(time);
-            }
+            updateTimes(time);
         }, 100);
     return interval;
-    }
-
-    const updateTimes = (time) => {
-        mode ? setElapsedWorkTime(elapsedWorkTime + time) : setElapsedBreakTime(elapsedBreakTime + time);
     }
 
     const checkIfTimerEnded = () => {
@@ -242,13 +211,57 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen
         }
     }
 
+    const updateTimes = (time) => {
+        mode ? setElapsedWorkTime(elapsedWorkTime + time) : setElapsedBreakTime(elapsedBreakTime + time);
+    }
+
     const handleTimerEnd = () => {
         pauseTimer();     
         sendNotification();       
         setTimerStopped(1);
         playAlarm();
     }
-    
+
+    const configureNotification = () => {
+        PushNotification.configure({
+            onNotification: function (notification) {
+                stopTimer();
+                notification.finish();
+            },
+        
+            onAction: function (notification) {;
+                if(notification.action === 'DISMISS') {
+                    stopAlarm();
+                }
+            },
+            
+            requestPermissions: Platform.OS === 'ios'
+        })
+    }
+
+    const sendNotification = () => {
+
+        const title = mode ? "Take a break!" : "Back to work.";
+
+        const modeMessage = mode ? "Work " : "Break ";
+
+        const now = new Date(Date.now());
+
+        const message = modeMessage + `finished at ${now.getHours()}:${now.getMinutes()}`; 
+        
+        PushNotification.localNotification({
+            channelId: 'workaholic',
+            title,
+            message,
+            invokeApp: false,
+            actions: ["DISMISS"],
+            ignoreInForeground: true,
+            largeIcon: 'timer_icon_round',
+            smallIcon: 'timer_icon_round',
+            data: {dismiss: stopAlarm()},        
+        })
+    }
+
     const handleTimerStopped = () => {
         if(timerStopped){
             setTimerStopped(0);
@@ -282,7 +295,7 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen
             setAnimPlaying(1);
         }
     }
-
+   
     const changeMode = (id) => {
         if(activeAnimation == animations.TIMER){
             setMode(id)
@@ -298,43 +311,6 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen
         }
     }
 
-    const configureNotification = () => {
-        PushNotification.configure({
-            onNotification: function (notification) {
-                stopTimer();
-                notification.finish();
-            },
-        
-            onAction: function (notification) {;
-                if(notification.action === 'DISMISS') {
-                    stopAlarm();
-                }
-            },
-            
-            requestPermissions: Platform.OS === 'ios'
-        })
-    }
-
-    const sendNotification = () => {
-        const title = mode ? "Take a break!" : "Back to work.";
-        const modeMessage = mode ? "Work " : "Break ";
-        const now = new Date(Date.now());
-        const hours = now.getHours() > 9 ? now.getHours() : '0' + now.getHours();
-        const minutes = now.getMinutes() > 9 ? now.getMinutes() : '0' + now.getMinutes();
-        const message = modeMessage + `finished at ${hours}:${minutes}`; 
-        PushNotification.localNotification({
-            channelId: 'workaholic',
-            title,
-            message,
-            invokeApp: false,
-            actions: ["DISMISS"],
-            ignoreInForeground: true,
-            largeIcon: 'timer_icon_round',
-            smallIcon: 'timer_icon_round',
-            data: {dismiss: stopAlarm()},        
-        })
-    }
-
     const resetTime = () => {
         mode ? resetWork() : resetBreak();
     }
@@ -347,6 +323,14 @@ const TimerScreen = ({mode, setMode, totalWorkTime, totalBreakTime, activeScreen
     const resetBreak = () => {
         setElapsedBreakTime(0);
         setDisplayedBreakTime(totalBreakTime);
+    }
+
+    const playAlarm = () => {
+        alarm.current.play();
+    }
+
+    const stopAlarm = () => {
+        alarm.current.stop();
     }
 
     return (

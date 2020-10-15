@@ -24,11 +24,10 @@ const {
 } = Animated;
 
 const ScreenContainer = ({totalWorkTime, totalBreakTime, setTotalWorkTime, setTotalBreakTime}) => {
-    const width =  useWindowDimensions().width * 2;
 
+    const width =  useWindowDimensions().width * 2;
     const [mode, setMode] = useState(1);
     const [activeScreen, setActiveScreen] = useState(0);
-
     const [playing, setPlaying] = useState(0);
     const clock = useRef(new Clock()).current;
     const dest = useRef(new Value(0)).current;
@@ -73,7 +72,7 @@ const ScreenContainer = ({totalWorkTime, totalBreakTime, setTotalWorkTime, setTo
 
     return (
         <View style={[ styles.container, { width } ]}>
-            <PanGestureHandler onHandlerStateChange={handleSwipe}>
+            <PanGestureHandler onGestureEvent={handleSwipe}>
                 <Animated.View style={{ flexDirection: 'row', transform:[{ translateX }] }}>
                     <TimerScreen
                         mode={mode}

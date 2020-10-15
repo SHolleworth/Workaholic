@@ -7,7 +7,6 @@ import com.facebook.react.ReactApplication;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
-import com.wix.reactnativenotifications.RNNotificationsPackage;
 import com.zmxv.RNSound.RNSoundPackage;
 import com.reactnativecommunity.rctaudiotoolkit.AudioPackage;
 import com.rndetectnavbarandroid.RNDetectNavbarAndroidPackage;
