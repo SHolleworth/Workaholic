@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import {TouchableOpacity, View, Image, useWindowDimensions} from 'react-native';
 import styles from './styles'
 import colors from '../../../constants/colors';
